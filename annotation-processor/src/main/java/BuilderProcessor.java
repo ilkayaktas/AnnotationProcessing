@@ -9,9 +9,7 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -19,10 +17,20 @@ import java.util.stream.Collectors;
  */
 
 @SupportedAnnotationTypes("BuilderProperty")
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
-
 public class BuilderProcessor extends AbstractProcessor {
+
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        Set<String> annotataions = new LinkedHashSet<String>();
+        annotataions.add(BuilderProperty.class.getCanonicalName());/*You can add other processors here*/
+        return annotataions;
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
+    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations,
