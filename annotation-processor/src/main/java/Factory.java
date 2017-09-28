@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
  */
 
 @Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Factory {
     /**
      * The name of the factory

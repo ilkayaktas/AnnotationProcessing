@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
  */
 
 @Target(ElementType.METHOD)
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.SOURCE)
 public @interface BuilderProperty {
 }

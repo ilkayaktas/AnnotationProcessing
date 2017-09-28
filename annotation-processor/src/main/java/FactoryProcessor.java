@@ -93,19 +93,21 @@ public class FactoryProcessor extends AbstractProcessor {
                 return true;
             }
 
-            // We have collected all classes annotated with @Factory stored as FactoryAnnotatedClass
-            // and grouped into FactoryGroupedClasses. Now we are going to generate java files for each Factory.
-            try {
-                for (FactoryGroupedClasses factoryClass : factoryClasses.values()) {
-                    factoryClass.generateCode(elementUtils, filer);
-                }
 
-                factoryClasses.clear();
 
-            } catch (IOException e) {
-                error(null, e.getMessage());
+        }
+
+        // We have collected all classes annotated with @Factory stored as FactoryAnnotatedClass
+        // and grouped into FactoryGroupedClasses. Now we are going to generate java files for each Factory.
+        try {
+            for (FactoryGroupedClasses factoryClass : factoryClasses.values()) {
+                factoryClass.generateCode(elementUtils, filer);
             }
 
+            factoryClasses.clear();
+
+        } catch (IOException e) {
+            error(null, e.getMessage());
         }
         return false;
     }

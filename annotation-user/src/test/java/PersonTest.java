@@ -1,3 +1,5 @@
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -10,6 +12,11 @@ class PersonTest {
 
         assertEquals(25, person.getAge());
         assertEquals("John", person.getName());
+    }
+
+    @Test
+    void  mealFactoryAnnotationFactory(){
+        MealFactory factory = new MealFactory();
     }
 
 }
