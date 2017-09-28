@@ -1,3 +1,6 @@
+package processors.factory;
+
+import annotations.Factory;
 import com.google.auto.service.AutoService;
 
 import javax.annotation.processing.*;
@@ -25,7 +28,7 @@ public class FactoryProcessor extends AbstractProcessor {
     private Elements elementUtils;
     private Filer filer;
     private Messager messager;
-    private Map<String, FactoryGroupedClasses> factoryClasses = new LinkedHashMap<String, FactoryGroupedClasses>();
+    private Map<String, FactoryGroupedClasses> factoryClassMap = new LinkedHashMap<String, FactoryGroupedClasses>();
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -50,10 +53,10 @@ public class FactoryProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        // Itearate over all @Factory annotated elements
+        // Itearate over all @annotations.Factory annotated elements
         for (Element annotatedElement : roundEnv.getElementsAnnotatedWith(Factory.class)) {
 
-            // Check if a class has been annotated with @Factory
+            // Check if a class has been annotated with @annotations.Factory
             if (annotatedElement.getKind() != ElementKind.CLASS) {
                 error(annotatedElement, "Only classes can be annotated with @%s",
                         Factory.class.getSimpleName());
@@ -66,7 +69,7 @@ public class FactoryProcessor extends AbstractProcessor {
 
             try {
                 FactoryAnnotatedClass annotatedClass =
-                        new FactoryAnnotatedClass(typeElement); // throws IllegalArgumentException
+                        new FactoryAnnotatedClass(typeElement, messager); // throws IllegalArgumentException
 
                 if (!isValidClass(annotatedClass)) {
                     return true; // Error message printed, exit processing
@@ -74,18 +77,21 @@ public class FactoryProcessor extends AbstractProcessor {
 
                 // Everything is fine, so try to add
                 FactoryGroupedClasses factoryClass =
-                        factoryClasses.get(annotatedClass.getQualifiedFactoryGroupName());
+                        factoryClassMap.get(annotatedClass.getQualifiedFactoryGroupName());
+
                 if (factoryClass == null) {
                     String qualifiedGroupName = annotatedClass.getQualifiedFactoryGroupName();
-                    factoryClass = new FactoryGroupedClasses(qualifiedGroupName);
-                    factoryClasses.put(qualifiedGroupName, factoryClass);
+                    factoryClass = new FactoryGroupedClasses(qualifiedGroupName, messager);
+                    factoryClassMap.put(qualifiedGroupName, factoryClass);
+
+                    log(qualifiedGroupName + " class group is created and added into map.");
                 }
 
                 // Throws IdAlreadyUsedException if id is conflicting with
-                // another @Factory annotated class with the same id
+                // another @annotations.Factory annotated class with the same id
                 factoryClass.add(annotatedClass);
             } catch (IllegalArgumentException e) {
-                // @Factory.id() is empty
+                // @annotations.Factory.id() is empty
                 error(typeElement, e.getMessage());
                 return true;
             } catch (ProcessingException e) {
@@ -97,14 +103,14 @@ public class FactoryProcessor extends AbstractProcessor {
 
         }
 
-        // We have collected all classes annotated with @Factory stored as FactoryAnnotatedClass
-        // and grouped into FactoryGroupedClasses. Now we are going to generate java files for each Factory.
+        // We have collected all classes annotated with @annotations.Factory stored as processors.factory.FactoryAnnotatedClass
+        // and grouped into processors.factory.FactoryGroupedClasses. Now we are going to generate java files for each annotations.Factory.
         try {
-            for (FactoryGroupedClasses factoryClass : factoryClasses.values()) {
+            for (FactoryGroupedClasses factoryClass : factoryClassMap.values()) {
                 factoryClass.generateCode(elementUtils, filer);
             }
 
-            factoryClasses.clear();
+            factoryClassMap.clear();
 
         } catch (IOException e) {
             error(null, e.getMessage());
@@ -117,6 +123,11 @@ public class FactoryProcessor extends AbstractProcessor {
                 Diagnostic.Kind.ERROR,
                 String.format(msg, args),
                 e);
+    }
+
+    private void log(String message){
+        messager.printMessage(
+                Diagnostic.Kind.WARNING,message);
     }
 
     private boolean isValidClass(FactoryAnnotatedClass item) {
@@ -137,7 +148,7 @@ public class FactoryProcessor extends AbstractProcessor {
             return false;
         }
 
-        // Check inheritance: Class must be childclass as specified in @Factory.type();
+        // Check inheritance: Class must be childclass as specified in @annotations.Factory.type();
         TypeElement superClassElement =
                 elementUtils.getTypeElement(item.getQualifiedFactoryGroupName());
         if (superClassElement.getKind() == ElementKind.INTERFACE) {

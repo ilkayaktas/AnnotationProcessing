@@ -1,13 +1,18 @@
+package processors.factory;
+
+import annotations.Factory;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
+import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,14 +27,18 @@ public class FactoryGroupedClasses {
      * Will be added to the name of the generated factory class
      */
     private static final String SUFFIX = "Factory";
+    private final Messager messager;
 
     private String qualifiedClassName;
 
     private Map<String, FactoryAnnotatedClass> itemsMap =
             new LinkedHashMap<String, FactoryAnnotatedClass>();
 
-    public FactoryGroupedClasses(String qualifiedClassName) {
+    public FactoryGroupedClasses(String qualifiedClassName, Messager messager) {
         this.qualifiedClassName = qualifiedClassName;
+        this.messager = messager;
+
+        log(qualifiedClassName + " group is created.");
     }
 
     public void add(FactoryAnnotatedClass toInsert) throws ProcessingException  {
@@ -44,6 +53,8 @@ public class FactoryGroupedClasses {
         }
 
         itemsMap.put(toInsert.getId(), toInsert);
+
+        log(toInsert.getTypeElement().getSimpleName() + " class is added into "+qualifiedClassName);
     }
 
     public void generateCode(Elements elementUtils, Filer filer) throws IOException {
@@ -77,5 +88,10 @@ public class FactoryGroupedClasses {
 
         // Write file
         JavaFile.builder(packageName, typeSpec).build().writeTo(filer);
+    }
+
+    private void log(String message){
+        messager.printMessage(
+                Diagnostic.Kind.WARNING,message);
     }
 }

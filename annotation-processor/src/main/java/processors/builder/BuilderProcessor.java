@@ -1,3 +1,6 @@
+package processors.builder;
+
+import annotations.BuilderProperty;
 import com.google.auto.service.AutoService;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -41,7 +44,7 @@ public class BuilderProcessor extends AbstractProcessor {
                            RoundEnvironment roundEnv) {
 
         for (TypeElement annotation : annotations) {
-            // In this code, we use the RoundEnvironment instance to receive all elements annotated with the @BuilderProperty annotation.
+            // In this code, we use the RoundEnvironment instance to receive all elements annotated with the @annotations.BuilderProperty annotation.
             // In the case of the Person class, these elements correspond to the setName and setAge methods.
             Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
 
@@ -58,7 +61,7 @@ public class BuilderProcessor extends AbstractProcessor {
             // The following lines will output an error for each erroneously annotated element during the source processing stage
             otherMethods.forEach(element ->
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "@BuilderProperty must be applied to a setXxx method "
+                            "@annotations.BuilderProperty must be applied to a setXxx method "
                                     + "with a single argument", element));
 
             // if the correct setters collection is empty, there is no point of continuing the current type element set iteration
