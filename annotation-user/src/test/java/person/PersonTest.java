@@ -1,4 +1,4 @@
-import org.junit.jupiter.api.Test;
+package person;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -14,9 +14,5 @@ class PersonTest {
         assertEquals("John", person.getName());
     }
 
-    @Test
-    void  mealFactoryAnnotationFactory(){
-        MealFactory factory = new MealFactory();
-    }
 
 }

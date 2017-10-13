@@ -3,9 +3,7 @@ package processors.builder;
 import annotations.BuilderProperty;
 import com.google.auto.service.AutoService;
 
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Processor;
-import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -27,6 +25,14 @@ import java.util.stream.Collectors;
 @AutoService(Processor.class)
 public class BuilderProcessor extends AbstractProcessor {
 
+    private Messager messager;
+
+    @Override
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        super.init(processingEnv);
+        messager = processingEnv.getMessager();
+    }
+
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> annotataions = new LinkedHashSet<String>();
@@ -42,6 +48,8 @@ public class BuilderProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations,
                            RoundEnvironment roundEnv) {
+
+        annotations.forEach(o -> log("supported annotations by BuilderProcessor: "+o.getSimpleName().toString()));
 
         for (TypeElement annotation : annotations) {
             // In this code, we use the RoundEnvironment instance to receive all elements annotated with the @annotations.BuilderProperty annotation.
@@ -93,6 +101,11 @@ public class BuilderProcessor extends AbstractProcessor {
             }
         }
         return false;
+    }
+
+    private void log(String message){
+        messager.printMessage(
+                Diagnostic.Kind.WARNING,message);
     }
 
     private void writeBuilderFile(String className, Map<String, String> setterMap) throws IOException {

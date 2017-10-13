@@ -1,3 +1,5 @@
+package pizza;
+
 import annotations.Factory;
 
 /**
@@ -5,7 +7,7 @@ import annotations.Factory;
  */
 
 @Factory(
-        id = "Tiramisu",
+        id = "pizza.Tiramisu",
         type = Meal.class
 )
 public class Tiramisu implements Meal {

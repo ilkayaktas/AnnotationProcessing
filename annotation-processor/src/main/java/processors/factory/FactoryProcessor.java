@@ -1,5 +1,6 @@
 package processors.factory;
 
+import annotations.BuilderProperty;
 import annotations.Factory;
 import com.google.auto.service.AutoService;
 
@@ -43,6 +44,7 @@ public class FactoryProcessor extends AbstractProcessor {
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> annotataions = new LinkedHashSet<String>();
         annotataions.add(Factory.class.getCanonicalName());
+        annotataions.add(BuilderProperty.class.getCanonicalName());
         return annotataions;
     }
 
@@ -53,6 +55,10 @@ public class FactoryProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+
+        annotations.forEach(o -> log("supported annotations by FactoryProcessor: "+o.getSimpleName().toString()));
+        roundEnv.getElementsAnnotatedWith(Factory.class).forEach(o -> log("annotated elements of Factory annotation: "+o.toString()));
+
         // Itearate over all @annotations.Factory annotated elements
         for (Element annotatedElement : roundEnv.getElementsAnnotatedWith(Factory.class)) {
 

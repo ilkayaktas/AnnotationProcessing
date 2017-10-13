@@ -53,6 +53,7 @@ hs_err_pid*
 .idea/**/sqlDataSources.xml
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
+.idea/uiDesigner.xml
 
 # Gradle:
 .idea/**/gradle.xml
